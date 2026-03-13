@@ -32,6 +32,19 @@ addRoute("/health", (_req: Request, res: Response) => {
 addRoute("/metrics", async (req: Request, res: Response) => {
   try {
     const { start, end } = req.query as { start?: string; end?: string };
+
+    // Quick verify of vars without exposing them
+    const missing = [];
+    if (!process.env.CLOCKIFY_API_KEY) missing.push("CLOCKIFY_API_KEY");
+    if (!process.env.CLOCKIFY_WORKSPACE_ID) missing.push("CLOCKIFY_WORKSPACE_ID");
+    if (!process.env.CLOCKIFY_USER_ID_ADRI) missing.push("CLOCKIFY_USER_ID_ADRI");
+    if (!process.env.CLOCKIFY_USER_ID_QUIQUE) missing.push("CLOCKIFY_USER_ID_QUIQUE");
+
+    if (missing.length > 0) {
+      console.error(`[Metrics] Missing env vars: ${missing.join(", ")}`);
+      return res.status(500).json({ error: "Configuration Error", missing });
+    }
+
     const clockify = await getClockifyDashboardHours({ start, end });
     res.json({ clockify });
   } catch (error: any) {
