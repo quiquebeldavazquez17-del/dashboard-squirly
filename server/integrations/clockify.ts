@@ -60,11 +60,11 @@ const FALLBACK_CATEGORY = "Otros";
 
 function getClockifyEnv() {
   const apiBase =
-    process.env.CLOCKIFY_API_BASE ?? "https://api.clockify.me/api/v1";
-  const apiKey = process.env.CLOCKIFY_API_KEY;
-  const workspaceId = process.env.CLOCKIFY_WORKSPACE_ID;
-  const adriUserId = process.env.CLOCKIFY_USER_ID_ADRI;
-  const quiqueUserId = process.env.CLOCKIFY_USER_ID_QUIQUE;
+    (process.env.CLOCKIFY_API_BASE ?? "https://api.clockify.me/api/v1").trim();
+  const apiKey = process.env.CLOCKIFY_API_KEY?.trim();
+  const workspaceId = process.env.CLOCKIFY_WORKSPACE_ID?.trim();
+  const adriUserId = process.env.CLOCKIFY_USER_ID_ADRI?.trim();
+  const quiqueUserId = process.env.CLOCKIFY_USER_ID_QUIQUE?.trim();
 
   if (!apiKey) throw new Error("CLOCKIFY_API_KEY is not set");
   if (!workspaceId) throw new Error("CLOCKIFY_WORKSPACE_ID is not set");
