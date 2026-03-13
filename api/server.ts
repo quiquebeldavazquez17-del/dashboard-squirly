@@ -9,11 +9,7 @@ if (process.env.NODE_ENV !== "production") {
 
 import express, { Request, Response } from "express";
 import cors from "cors";
-import {
-  getClockifyDashboardHours,
-  fetchClockifyTags,
-  fetchClockifyProjects
-} from "../server/integrations/clockify.js";
+import { getClockifyDashboardHours } from "../server/integrations/clockify.js";
 import { fetchGoogleSheetRows } from "../server/integrations/googleSheets.js";
 import { getSupabaseMetrics } from "../server/integrations/supabase.js";
 
@@ -30,42 +26,12 @@ const addRoute = (routePath: string, handler: any) => {
 };
 
 addRoute("/health", (_req: Request, res: Response) => {
-  res.json({ ok: true, timestamp: new Date().toISOString() });
-});
-
-addRoute("/debug-vars", (_req: Request, res: Response) => {
-  res.json({
-    CLOCKIFY_API_KEY: process.env.CLOCKIFY_API_KEY ? "SET (ends in " + process.env.CLOCKIFY_API_KEY.slice(-3) + ")" : "MISSING",
-    CLOCKIFY_WORKSPACE_ID: process.env.CLOCKIFY_WORKSPACE_ID ? "SET" : "MISSING",
-    CLOCKIFY_USER_ID_ADRI: process.env.CLOCKIFY_USER_ID_ADRI ? "SET" : "MISSING",
-    CLOCKIFY_USER_ID_QUIQUE: process.env.CLOCKIFY_USER_ID_QUIQUE ? "SET" : "MISSING",
-    NODE_ENV: process.env.NODE_ENV,
-    VERCEL: process.env.VERCEL ? "YES" : "NO"
-  });
-});
-
-addRoute("/clockify-tags", async (_req: Request, res: Response) => {
-  try {
-    const tags = await fetchClockifyTags();
-    res.json({ tags });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-addRoute("/clockify-projects", async (_req: Request, res: Response) => {
-  try {
-    const projects = await fetchClockifyProjects();
-    res.json({ projects });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
+  res.json({ ok: true });
 });
 
 addRoute("/metrics", async (req: Request, res: Response) => {
   try {
     const { start, end } = req.query as { start?: string; end?: string };
-    console.log(`[Metrics] Range: ${start} - ${end}`);
     const clockify = await getClockifyDashboardHours({ start, end });
     res.json({ clockify });
   } catch (error: any) {
