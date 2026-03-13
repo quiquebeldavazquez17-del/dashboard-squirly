@@ -14,19 +14,20 @@ import { fetchGoogleSheetRows } from "../server/integrations/googleSheets.js";
 import { getSupabaseMetrics } from "../server/integrations/supabase.js";
 
 const app = express();
+const router = express.Router();
 
 app.use(cors());
 app.use(express.json());
 
-app.get("/api/health", (_req: Request, res: Response) => {
+router.get("/health", (_req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
-app.get("/api/test-google", (_req: Request, res: Response) => {
+router.get("/test-google", (_req: Request, res: Response) => {
   res.json({ ok: true, route: "google route loaded" });
 });
 
-app.get("/api/debug-vars", (_req: Request, res: Response) => {
+router.get("/debug-vars", (_req: Request, res: Response) => {
   res.json({
     CLOCKIFY_API_KEY: process.env.CLOCKIFY_API_KEY ? "SET (ends in " + process.env.CLOCKIFY_API_KEY.slice(-3) + ")" : "MISSING",
     CLOCKIFY_WORKSPACE_ID: process.env.CLOCKIFY_WORKSPACE_ID ? "SET" : "MISSING",
@@ -36,7 +37,7 @@ app.get("/api/debug-vars", (_req: Request, res: Response) => {
   });
 });
 
-app.get("/api/clockify-users", async (_req: Request, res: Response) => {
+router.get("/clockify-users", async (_req: Request, res: Response) => {
   try {
     const apiKey = process.env.CLOCKIFY_API_KEY;
     const workspaceId = process.env.CLOCKIFY_WORKSPACE_ID;
@@ -93,7 +94,7 @@ app.get("/api/clockify-users", async (_req: Request, res: Response) => {
   }
 });
 
-app.get("/api/metrics", async (req: Request, res: Response) => {
+router.get("/metrics", async (req: Request, res: Response) => {
   try {
     const { start, end } = req.query as { start?: string; end?: string };
 
@@ -110,7 +111,7 @@ app.get("/api/metrics", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/api/google-sheets", async (_req: Request, res: Response) => {
+router.get("/google-sheets", async (_req: Request, res: Response) => {
   try {
     const rows = await fetchGoogleSheetRows();
     res.json({ rows });
@@ -118,12 +119,12 @@ app.get("/api/google-sheets", async (_req: Request, res: Response) => {
     console.error("Error fetching Google Sheets:", error);
     res.status(500).json({
       error: "Error fetching Google Sheets",
-      message: error.message ?? "Unknown error",
+      message: error.message,
     });
   }
 });
 
-app.get("/api/supabase-metrics", async (req: Request, res: Response) => {
+router.get("/supabase-metrics", async (req: Request, res: Response) => {
   try {
     const { start, end } = req.query as { start?: string; end?: string };
     const metrics = await getSupabaseMetrics(start, end);
@@ -137,12 +138,15 @@ app.get("/api/supabase-metrics", async (req: Request, res: Response) => {
   }
 });
 
+app.use("/api", router);
+app.use("/", router);
+
 const PORT = Number(process.env.PORT || 3000);
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`🚀 API running on http://localhost:${PORT}`);
-    console.log("✅ Routes loaded: /api/health, /api/test-google, /api/clockify-users, /api/metrics, /api/google-sheets, /api/supabase-metrics");
+    console.log("✅ Routes loaded");
   });
 }
 
