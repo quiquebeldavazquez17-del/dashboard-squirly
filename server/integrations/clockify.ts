@@ -247,7 +247,13 @@ export async function getClockifyDashboardHours(
     (tag) => tag.name.trim().toLowerCase() === CLOCKIFY_TAG_FILTER.toLowerCase(),
   );
 
+  console.log(`[Clockify] Squirly Tag Found: ${!!squirlyTag} (Searching for: "${CLOCKIFY_TAG_FILTER}")`);
+  if (squirlyTag) {
+    console.log(`[Clockify] Tag ID: ${squirlyTag.id}`);
+  }
+
   if (!squirlyTag) {
+    console.warn(`[Clockify] Tag "${CLOCKIFY_TAG_FILTER}" NOT FOUND in workspace. Available tags: ${tags.map(t => t.name).join(", ")}`);
     return {
       quique: createEmptyDashboardHours(),
       adri: createEmptyDashboardHours(),
@@ -264,9 +270,13 @@ export async function getClockifyDashboardHours(
 
   const squirlyCategoryMap: Map<string, number> = new Map();
 
+  console.log(`[Clockify] Processing ${entries.length} total entries`);
+  let matchedEntries = 0;
+
   for (const entry of entries) {
     const tagIds = entry.tagIds ?? [];
     if (!tagIds.includes(squirlyTag.id)) continue;
+    matchedEntries++;
 
     const hours = calculateEntryHours(entry);
     if (hours <= 0) continue;
@@ -290,6 +300,8 @@ export async function getClockifyDashboardHours(
       (squirlyCategoryMap.get(category) ?? 0) + hours,
     );
   }
+
+  console.log(`[Clockify] Matched ${matchedEntries} entries with Squirly tag`);
 
   const quique =
     perOwnerCategoryMap.quique.size > 0
