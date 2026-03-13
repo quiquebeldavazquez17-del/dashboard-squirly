@@ -1,40 +1,34 @@
-# Welcome to your Lovable project
+# Data Whiz Hub - KPI Dashboard
 
-## Project info
+Este proyecto es un dashboard de KPI's sincronizado con Clockify.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Requisitos
+- Node.js & npm
 
-## How can I edit this code?
+## Configuración
+El archivo `.env` ya está configurado con las claves necesarias, pero puedes editarlas si es necesario:
+- `CLOCKIFY_API_KEY`: Tu API Key de Clockify.
+- `CLOCKIFY_WORKSPACE_ID`: El ID del workspace.
 
-There are several ways of editing your application.
+## Cómo ejecutar el proyecto
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+### 1. Iniciar el Servidor API (Backend)
+En una terminal, ejecuta:
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+npm run server
+```
+El servidor estará disponible en `http://localhost:3000`.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 2. Iniciar el Dashboard (Frontend)
+En otra terminal, ejecuta:
+```sh
 npm run dev
 ```
+El dashboard se abrirá normalmente en `http://localhost:8080` (o el puerto que indique la consola).
+
+### Ejecución combinada
+Si deseas ejecutar ambos con un solo comando, puedes instalar `concurrently` o simplemente abrir dos pestañas de terminal.
+
 
 **Edit a file directly in GitHub**
 

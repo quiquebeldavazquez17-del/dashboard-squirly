@@ -1,4 +1,4 @@
-export type TimeView = "today" | "week" | "total";
+export type TimeView = "today" | "week" | "month";
 
 export type CompareMode = "prev_week" | "prev_month_same_range" | "prev_year_same_range" | "custom";
 

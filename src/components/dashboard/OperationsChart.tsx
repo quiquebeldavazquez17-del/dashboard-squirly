@@ -1,15 +1,18 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { mockOperationsData } from "@/lib/mock-data";
 
-export function OperationsChart() {
+interface OperationsChartProps {
+  data?: any[];
+}
+
+export function OperationsChart({ data }: OperationsChartProps) {
   return (
     <div className="kpi-card">
-      <h3 className="section-title">Operaciones · Visitas y Eventos</h3>
+      <h3 className="section-title">Clientes · Visitas y Eventos</h3>
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={mockOperationsData} barGap={2}>
+          <BarChart data={data} barGap={2}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 16%)" />
-            <XAxis dataKey="date" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
+            <XAxis dataKey="label" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{

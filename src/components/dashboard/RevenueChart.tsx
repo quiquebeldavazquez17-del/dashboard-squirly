@@ -1,15 +1,18 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { mockRevenueWeekly } from "@/lib/mock-data";
 
-export function RevenueChart() {
+interface RevenueChartProps {
+  data?: any[];
+}
+
+export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <div className="kpi-card">
-      <h3 className="section-title">Facturación Semanal</h3>
+      <h3 className="section-title">Evolución Facturación vs Beneficio</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={mockRevenueWeekly} barGap={4}>
+          <BarChart data={data} barGap={4}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 16%)" />
-            <XAxis dataKey="day" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
+            <XAxis dataKey="label" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `€${v}`} />
             <Tooltip
               contentStyle={{
@@ -21,8 +24,8 @@ export function RevenueChart() {
               formatter={(value: number) => [`€${value.toLocaleString()}`, ""]}
             />
             <Legend wrapperStyle={{ fontSize: 11, color: "hsl(215, 12%, 50%)" }} />
-            <Bar dataKey="current" name="Esta semana" fill="hsl(174, 72%, 52%)" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="previous" name="Semana anterior" fill="hsl(220, 14%, 22%)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="revenue" name="Facturación" fill="hsl(174, 72%, 52%)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="profit" name="Beneficio" fill="hsl(262, 60%, 58%)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

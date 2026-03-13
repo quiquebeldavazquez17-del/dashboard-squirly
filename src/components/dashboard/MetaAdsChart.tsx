@@ -1,13 +1,10 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { mockMetaAds } from "@/lib/mock-data";
 
-export function MetaAdsChart() {
-  const data = mockMetaAds.map((d) => ({
-    ...d,
-    cac: d.conversions > 0 ? +(d.spend / d.conversions).toFixed(1) : 0,
-    convRate: d.clicks > 0 ? +((d.conversions / d.clicks) * 100).toFixed(1) : 0,
-  }));
+interface MetaAdsChartProps {
+  data?: any[];
+}
 
+export function MetaAdsChart({ data }: MetaAdsChartProps) {
   return (
     <div className="kpi-card">
       <h3 className="section-title">Meta Ads · Gasto vs Conversiones</h3>
@@ -21,7 +18,7 @@ export function MetaAdsChart() {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 16%)" />
-            <XAxis dataKey="day" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
+            <XAxis dataKey="label" tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: "hsl(215, 12%, 50%)", fontSize: 11 }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{
