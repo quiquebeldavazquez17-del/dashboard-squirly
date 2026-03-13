@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== "production") {
 
 import express, { Request, Response } from "express";
 import cors from "cors";
-import { getClockifyDashboardHours } from "../server/integrations/clockify.js";
+import { getClockifyDashboardHours, getClockifyEnv } from "../server/integrations/clockify.js";
 import { fetchGoogleSheetRows } from "../server/integrations/googleSheets.js";
 import { getSupabaseMetrics } from "../server/integrations/supabase.js";
 
@@ -24,6 +24,28 @@ const addRoute = (routePath: string, handler: any) => {
   app.get(cleanPath, handler);
   app.get(`/api${cleanPath}`, handler);
 };
+
+addRoute("/test-clockify", async (_req: Request, res: Response) => {
+  try {
+    const { apiKey, apiBase, workspaceId } = getClockifyEnv();
+    const url = `${apiBase}/user`;
+    const response = await fetch(url, {
+      headers: { "X-Api-Key": apiKey }
+    });
+    const data = await response.json().catch(() => ({}));
+    res.json({
+      status: response.status,
+      ok: response.ok,
+      keyLength: apiKey.length,
+      workspaceId: workspaceId,
+      firstChars: apiKey.substring(0, 3) + "...",
+      lastChars: "..." + apiKey.substring(apiKey.length - 3),
+      data
+    });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 addRoute("/health", (_req: Request, res: Response) => {
   res.json({ ok: true });

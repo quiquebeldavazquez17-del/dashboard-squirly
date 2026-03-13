@@ -58,7 +58,7 @@ const PROJECT_TO_CATEGORY: Record<string, string> = {
 
 const FALLBACK_CATEGORY = "Otros";
 
-function getClockifyEnv() {
+export function getClockifyEnv() {
   const apiBase =
     (process.env.CLOCKIFY_API_BASE ?? "https://api.clockify.me/api/v1").trim();
   const apiKey = process.env.CLOCKIFY_API_KEY?.trim();
