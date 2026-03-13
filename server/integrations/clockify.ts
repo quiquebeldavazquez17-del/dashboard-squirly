@@ -171,13 +171,13 @@ async function fetchJson<T>(url: string, apiKey: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-async function fetchClockifyProjects(): Promise<ClockifyProject[]> {
+export async function fetchClockifyProjects(): Promise<ClockifyProject[]> {
   const { apiBase, apiKey, workspaceId } = getClockifyEnv();
   const url = `${apiBase}/workspaces/${workspaceId}/projects?page-size=5000`;
   return fetchJson<ClockifyProject[]>(url, apiKey);
 }
 
-async function fetchClockifyTags(): Promise<ClockifyTag[]> {
+export async function fetchClockifyTags(): Promise<ClockifyTag[]> {
   const { apiBase, apiKey, workspaceId } = getClockifyEnv();
   const url = `${apiBase}/workspaces/${workspaceId}/tags?page-size=5000`;
   return fetchJson<ClockifyTag[]>(url, apiKey);

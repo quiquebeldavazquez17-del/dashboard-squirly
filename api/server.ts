@@ -9,7 +9,11 @@ if (process.env.NODE_ENV !== "production") {
 
 import express, { Request, Response } from "express";
 import cors from "cors";
-import { getClockifyDashboardHours } from "../server/integrations/clockify.js";
+import {
+  getClockifyDashboardHours,
+  fetchClockifyTags,
+  fetchClockifyProjects
+} from "../server/integrations/clockify.js";
 import { fetchGoogleSheetRows } from "../server/integrations/googleSheets.js";
 import { getSupabaseMetrics } from "../server/integrations/supabase.js";
 
@@ -38,6 +42,24 @@ addRoute("/debug-vars", (_req: Request, res: Response) => {
     NODE_ENV: process.env.NODE_ENV,
     VERCEL: process.env.VERCEL ? "YES" : "NO"
   });
+});
+
+addRoute("/clockify-tags", async (_req: Request, res: Response) => {
+  try {
+    const tags = await fetchClockifyTags();
+    res.json({ tags });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+addRoute("/clockify-projects", async (_req: Request, res: Response) => {
+  try {
+    const projects = await fetchClockifyProjects();
+    res.json({ projects });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 addRoute("/metrics", async (req: Request, res: Response) => {
