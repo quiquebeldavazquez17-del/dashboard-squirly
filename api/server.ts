@@ -26,6 +26,16 @@ app.get("/api/test-google", (_req: Request, res: Response) => {
   res.json({ ok: true, route: "google route loaded" });
 });
 
+app.get("/api/debug-vars", (_req: Request, res: Response) => {
+  res.json({
+    CLOCKIFY_API_KEY: process.env.CLOCKIFY_API_KEY ? "SET (ends in " + process.env.CLOCKIFY_API_KEY.slice(-3) + ")" : "MISSING",
+    CLOCKIFY_WORKSPACE_ID: process.env.CLOCKIFY_WORKSPACE_ID ? "SET" : "MISSING",
+    CLOCKIFY_USER_ID_ADRI: process.env.CLOCKIFY_USER_ID_ADRI ? "SET" : "MISSING",
+    CLOCKIFY_USER_ID_QUIQUE: process.env.CLOCKIFY_USER_ID_QUIQUE ? "SET" : "MISSING",
+    NODE_ENV: process.env.NODE_ENV,
+  });
+});
+
 app.get("/api/clockify-users", async (_req: Request, res: Response) => {
   try {
     const apiKey = process.env.CLOCKIFY_API_KEY;
@@ -87,11 +97,12 @@ app.get("/api/metrics", async (req: Request, res: Response) => {
   try {
     const { start, end } = req.query as { start?: string; end?: string };
 
+    console.log(`[Metrics] Fetching for range: ${start} - ${end}`);
     const clockify = await getClockifyDashboardHours({ start, end });
-
+    console.log(`[Metrics] Clockify result found`);
     res.json({ clockify });
   } catch (error: any) {
-    console.error("Error getting metrics:", error);
+    console.error(`[Metrics ERROR]:`, error);
     res.status(500).json({
       error: "Error fetching metrics",
       message: error.message,
