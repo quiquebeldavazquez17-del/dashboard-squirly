@@ -13,6 +13,8 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
+import { startOfDay, endOfDay, subDays } from 'date-fns';
+
 export async function getSupabaseMetrics(start?: string, end?: string) {
     try {
         // 1. Get Total Users from auth.users (Static view)
@@ -23,54 +25,88 @@ export async function getSupabaseMetrics(start?: string, end?: string) {
 
         if (viewError) throw viewError;
 
-        // 2. Calculate "Active Users" in the selected period (Recurring Users definition)
-        let recurringUsers = 0;
-        if (start && end) {
-            const startDate = new Date(start);
-            const endDate = new Date(end);
-            const activeUserIds = new Set<string>();
+        const endDate = end ? new Date(end) : new Date();
+        const startDate = start ? new Date(start) : subDays(endDate, 6);
+        
+        // Intervals
+        const dauStart = startOfDay(endDate);
+        const dauEnd = endOfDay(endDate);
+        
+        const wauStart = startOfDay(startDate);
+        const wauEnd = endOfDay(endDate);
+        
+        const mauStart = startOfDay(subDays(endDate, 29));
+        const mauEnd = endOfDay(endDate);
 
-            // A. Get unique users from our new activity logs
-            const { data: usageData } = await supabase
-                .from('app_usage_logs')
-                .select('user_id')
-                .gte('used_at', startDate.toISOString())
-                .lte('used_at', endDate.toISOString());
+        const dauUserIds = new Set<string>();
+        const wauUserIds = new Set<string>();
+        const mauUserIds = new Set<string>();
 
-            if (usageData) {
-                usageData.forEach(log => activeUserIds.add(log.user_id));
-            }
+        // Get all activity logs for the maximum interval (MAU)
+        const { data: usageData } = await supabase
+            .from('app_usage_logs')
+            .select('user_id, used_at')
+            .gte('used_at', mauStart.toISOString())
+            .lte('used_at', mauEnd.toISOString());
 
-            // B. Get users who signed in during this period (Fallback/Historical)
-            const { data: userData, error: userError } = await supabase.auth.admin.listUsers({
-                perPage: 1000,
+        if (usageData) {
+            usageData.forEach(log => {
+                const usedAt = new Date(log.used_at);
+                
+                // DAU
+                if (usedAt >= dauStart && usedAt <= dauEnd) {
+                    dauUserIds.add(log.user_id);
+                }
+                
+                // WAU (Current Period)
+                if (usedAt >= wauStart && usedAt <= wauEnd) {
+                    wauUserIds.add(log.user_id);
+                }
+                
+                // MAU (Last 30 days)
+                if (usedAt >= mauStart && usedAt <= mauEnd) {
+                    mauUserIds.add(log.user_id);
+                }
             });
-
-            if (!userError && userData.users) {
-                userData.users.forEach(u => {
-                    if (u.last_sign_in_at) {
-                        const loginDate = new Date(u.last_sign_in_at);
-                        if (loginDate >= startDate && loginDate <= endDate) {
-                            activeUserIds.add(u.id);
-                        }
-                    }
-                });
-            }
-
-            recurringUsers = activeUserIds.size;
         }
 
+        // Fallback to auth users last_sign_in_at
+        const { data: userData, error: userError } = await supabase.auth.admin.listUsers({
+            perPage: 1000,
+        });
+
+        if (!userError && userData.users) {
+            userData.users.forEach(u => {
+                if (u.last_sign_in_at) {
+                    const loginDate = new Date(u.last_sign_in_at);
+                    
+                    if (loginDate >= dauStart && loginDate <= dauEnd) {
+                        dauUserIds.add(u.id);
+                    }
+                    if (loginDate >= wauStart && loginDate <= wauEnd) {
+                        wauUserIds.add(u.id);
+                    }
+                    if (loginDate >= mauStart && loginDate <= mauEnd) {
+                        mauUserIds.add(u.id);
+                    }
+                }
+            });
+        }
 
         return {
             totalUsers: viewData.total_users || 0,
-            recurringUsers: recurringUsers,
+            dau: dauUserIds.size,
+            wau: wauUserIds.size,
+            mau: mauUserIds.size,
             lastUpdated: new Date().toISOString()
         };
     } catch (error) {
         console.error("Error fetching Supabase metrics:", error);
         return {
             totalUsers: 0,
-            recurringUsers: 0,
+            dau: 0,
+            wau: 0,
+            mau: 0,
             error: "Failed to fetch metrics"
         };
     }

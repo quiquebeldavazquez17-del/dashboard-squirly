@@ -47,9 +47,9 @@ interface GoogleSheetsResponse {
 
 interface SupabaseMetricsResponse {
   totalUsers: number;
-  dailyActiveUsers: number;
-  recurringUsers: number;
-  loyalUsers: number;
+  dau: number;
+  wau: number;
+  mau: number;
 }
 
 function formatLocalDateTime(date: Date, endOfDay = false) {
@@ -341,12 +341,45 @@ const Index = () => {
       };
     }
 
-    if (normalizedLabel === "usuarios recurrentes" && supabaseMetrics) {
+    if (normalizedLabel === "mau" && supabaseMetrics) {
       return {
         ...kpi,
-        current_value: supabaseMetrics.recurringUsers,
+        current_value: supabaseMetrics.mau,
         compare_value: 0,
-        delta_abs: supabaseMetrics.recurringUsers,
+        delta_abs: supabaseMetrics.mau,
+        delta_pct: 100,
+      };
+    }
+
+    if (normalizedLabel === "wau" && supabaseMetrics) {
+      return {
+        ...kpi,
+        current_value: supabaseMetrics.wau,
+        compare_value: 0,
+        delta_abs: supabaseMetrics.wau,
+        delta_pct: 100,
+      };
+    }
+
+    if (normalizedLabel === "dau" && supabaseMetrics) {
+      return {
+        ...kpi,
+        current_value: supabaseMetrics.dau,
+        compare_value: 0,
+        delta_abs: supabaseMetrics.dau,
+        delta_pct: 100,
+      };
+    }
+
+    if (normalizedLabel === "engagement" && supabaseMetrics) {
+      const engagement = supabaseMetrics.mau > 0 
+        ? (supabaseMetrics.dau / supabaseMetrics.mau) * 100 
+        : 0;
+      return {
+        ...kpi,
+        current_value: engagement,
+        compare_value: 0,
+        delta_abs: engagement,
         delta_pct: 100,
       };
     }
@@ -406,10 +439,24 @@ const Index = () => {
 
 
       <main className="container mx-auto px-4 py-6 space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {kpis.map((kpi, i) => (
-            <KPICard key={kpi.label} kpi={kpi} index={i} />
-          ))}
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {kpis.slice(0, 5).map((kpi, i) => (
+              <KPICard key={kpi.label} kpi={kpi} index={i} />
+            ))}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
+            {kpis.slice(5, 8).map((kpi, i) => (
+              <KPICard key={kpi.label} kpi={kpi} index={i + 5} />
+            ))}
+          </div>
+          {kpis.length > 8 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              {kpis.slice(8).map((kpi, i) => (
+                <KPICard key={kpi.label} kpi={kpi} index={i + 8} />
+              ))}
+            </div>
+          )}
         </div>
 
         <section>

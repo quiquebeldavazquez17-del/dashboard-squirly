@@ -17,6 +17,7 @@ export interface KPIValue {
   prefix?: string;
   format?: "number" | "currency" | "percent" | "hours";
   sparkline?: number[];
+  description?: string;
   category: "proyecto" | "mercado" | "producto" | "ventas" | "operaciones";
 }
 

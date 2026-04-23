@@ -22,6 +22,12 @@ function formatValue(value: number, format?: string, prefix?: string): string {
   }
 }
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 export function KPICard({ kpi, index = 0 }: KPICardProps) {
   const isPositive = kpi.delta_pct > 0;
   const isNegative = kpi.delta_pct < 0;
@@ -41,7 +47,16 @@ export function KPICard({ kpi, index = 0 }: KPICardProps) {
       className="kpi-card flex flex-col justify-between gap-3 min-h-[140px]"
     >
       <div className="flex items-start justify-between">
-        <span className="kpi-label">{kpi.label}</span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="kpi-label cursor-help">{kpi.label}</span>
+          </TooltipTrigger>
+          {kpi.description && (
+            <TooltipContent side="top">
+              <p className="max-w-xs">{kpi.description}</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
         <div className={`flex items-center gap-1 text-xs font-semibold ${isGood ? "kpi-delta-positive" : isBad ? "kpi-delta-negative" : "kpi-delta-neutral"}`}>
           {isPositive ? <TrendingUp className="w-3 h-3" /> : isNegative ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
           <span>{isPositive ? "+" : ""}{kpi.delta_pct.toFixed(1)}%</span>
