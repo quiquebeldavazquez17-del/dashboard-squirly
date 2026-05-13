@@ -23,7 +23,9 @@ export async function getSupabaseMetrics(start?: string, end?: string) {
             .select('total_users')
             .single();
 
-        if (viewError) throw viewError;
+        if (viewError) {
+            console.warn("View v_app_analytics failed:", viewError.message);
+        }
 
         const endDate = end ? new Date(end) : new Date();
         const startDate = start ? new Date(start) : subDays(endDate, 6);
@@ -94,7 +96,7 @@ export async function getSupabaseMetrics(start?: string, end?: string) {
         }
 
         return {
-            totalUsers: viewData.total_users || 0,
+            totalUsers: viewData?.total_users || (userData?.users?.length || 0),
             dau: dauUserIds.size,
             wau: wauUserIds.size,
             mau: mauUserIds.size,
